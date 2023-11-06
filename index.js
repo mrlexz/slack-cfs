@@ -8,6 +8,20 @@ const client = new WebClient(process.env.TOKEN, {
   logLevel: LogLevel.DEBUG
 });
 
+function extractUserIdAndContent(message) {
+  // Regular expression to match the user ID within a mention
+  const userIdRegex = /<@(\w+)>/;
+  const userIdMatch = message.match(userIdRegex);
+
+  // Extract the user ID from the mention
+  const userId = userIdMatch ? userIdMatch[1] : null;
+
+  // Extract the content without the mention
+  const content = userId ? message.replace(userIdMatch[0], "").trim() : message;
+
+  return { userId, content };
+}
+
 const PORT = 3069;
 
 const app = express();
@@ -22,9 +36,12 @@ app.get("/", (req, res) => {
 app.post("/slack/events", async (req, res) => {
   let data = req.body;
   try {
+    const message = "<@U012ABCDEF> to bake a birthday cake";
+    const { userId, content } = extractUserIdAndContent(message);
+
     const result = await client.chat.postMessage({
-      channel: "U0654AQ7GAC",
-      text: `${data.text}`,
+      channel: userId,
+      text: content,
     });
     if (result.ok) {
       res.status(200).send("OK")
