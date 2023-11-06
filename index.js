@@ -1,8 +1,9 @@
 const express = require("express");
 const bodyParser = require('body-parser');
+require('dotenv').config();
 const { WebClient, LogLevel } = require("@slack/web-api");
 
-const client = new WebClient("xoxb-6153824406036-6136905271687-q7bhsP4zBspH8kfmYSojmrtI", {
+const client = new WebClient(process.env.TOKEN, {
   // LogLevel can be imported and used to make debugging simpler
   logLevel: LogLevel.DEBUG
 });
@@ -13,6 +14,10 @@ const app = express();
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
+
+app.get("/", (req, res) => {
+  res.send("Hello he's ly ly!")
+})
 
 app.post("/slack/events", async (req, res) => {
   let data = req.body;
@@ -38,3 +43,5 @@ app.post("/slack/events", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`App start at port ${PORT}`);
 })
+
+module.exports = app;
