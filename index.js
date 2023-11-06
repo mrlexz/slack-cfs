@@ -24,7 +24,7 @@ app.post("/slack/events", async (req, res) => {
   try {
     const result = await client.chat.postMessage({
       channel: "U0654AQ7GAC",
-      text: data.text,
+      text: `${data.text}`,
     });
     if (result.ok) {
       res.status(200).send("OK")
