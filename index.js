@@ -21,12 +21,10 @@ app.get("/", (req, res) => {
 
 app.post("/slack/events", async (req, res) => {
   let data = req.body;
-  console.log(req.pa);
   try {
-    // Call the chat.postMessage method using the WebClient
     const result = await client.chat.postMessage({
       channel: "U0654AQ7GAC",
-      text: data?.content,
+      text: data.text,
     });
     if (result.ok) {
       res.status(200).send("OK")
@@ -35,6 +33,7 @@ app.post("/slack/events", async (req, res) => {
     }
   }
   catch (error) {
+    res.status(400).send("Failed")
     console.error(error);
   }
 })
