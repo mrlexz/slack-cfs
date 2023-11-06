@@ -10,7 +10,7 @@ const client = new WebClient(process.env.TOKEN, {
 
 function extractUserIdAndContent(message) {
   // Regular expression to match the user ID within a mention
-  const userIdRegex = /<@(\w+)>/;
+  const userIdRegex = /<@(\w+)\|[\w.-]+>/;
   const userIdMatch = message.match(userIdRegex);
 
   // Extract the user ID from the mention
@@ -44,7 +44,7 @@ app.post("/slack/events", async (req, res) => {
       text: content,
     });
     if (result.ok) {
-      res.status(200).send("OK")
+      res.status(200).send(`OK ${message}`);
     } else {
       res.status(400).send("Failed")
     }
