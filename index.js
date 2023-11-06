@@ -36,7 +36,7 @@ app.get("/", (req, res) => {
 app.post("/slack/events", async (req, res) => {
   let data = req.body;
   try {
-    const message = "<@U012ABCDEF> to bake a birthday cake";
+    const message = data.text;
     const { userId, content } = extractUserIdAndContent(message);
 
     const result = await client.chat.postMessage({
