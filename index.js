@@ -8,18 +8,19 @@ const client = new WebClient(process.env.TOKEN, {
   logLevel: LogLevel.DEBUG,
 });
 
-function extractUserIdAndContent(message) {
-  // Regular expression to match the user ID within a mention
-  const userIdRegex = /<@(\w+)\|[\w.-]+>/;
-  const userIdMatch = message.match(userIdRegex);
+function extractUserIdUsernameAndContent(message) {
+  // Regular expression to match the user ID and username within a mention
+  const userMentionRegex = /<@(\w+)\|([\w.-]+)>/;
+  const userMentionMatch = message.match(userMentionRegex);
 
-  // Extract the user ID from the mention
-  const userId = userIdMatch ? userIdMatch[1] : null;
+  // Extract the user ID, username, and content from the message
+  const userId = userMentionMatch ? userMentionMatch[1] : null;
+  const username = userMentionMatch ? userMentionMatch[2] : null;
+  const content = userId
+    ? message.replace(userMentionMatch[0], "").trim()
+    : message;
 
-  // Extract the content without the mention
-  const content = userId ? message.replace(userIdMatch[0], "").trim() : message;
-
-  return { userId, content };
+  return { userId, username, content };
 }
 
 const PORT = 3069;
@@ -38,7 +39,11 @@ app.post("/slack/events", async (req, res) => {
   try {
     const message = data.text;
 
-    const { userId, content } = extractUserIdAndContent(message);
+    const {
+      userId,
+      content,
+      username: toPerson,
+    } = extractUserIdUsernameAndContent(message);
 
     const result = await client.chat.postMessage({
       channel: userId,
@@ -48,11 +53,7 @@ app.post("/slack/events", async (req, res) => {
     await fetch(process.env.CHANNEL_TRACKING, {
       method: "POST",
       body: JSON.stringify({
-        text: `Có người trigger slash command: ${JSON.stringify({
-          userName: data.user_name,
-          userId: data.user_id,
-          content,
-        })}`,
+        text: `\`${data.user_name}\` gửi tới \`${toPerson}\` với nội dung là \`${content}\``,
       }),
     });
 
