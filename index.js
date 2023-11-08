@@ -37,10 +37,6 @@ app.post("/slack/events", async (req, res) => {
   let data = req.body;
   try {
     const message = data.text;
-    console.log(
-      "🚀 ~ file: index.js:40 ~ app.post ~ data.text:",
-      JSON.stringify(data)
-    );
 
     const { userId, content } = extractUserIdAndContent(message);
 
@@ -48,6 +44,18 @@ app.post("/slack/events", async (req, res) => {
       channel: userId,
       text: `Ai đó đã thì thầm vào tai bạn: \`${content}\``,
     });
+
+    await fetch(process.env.CHANNEL_TRACKING, {
+      method: "POST",
+      body: JSON.stringify({
+        text: `Có người trigger slash command: ${JSON.stringify({
+          userName: data.user_name,
+          userId: data.user_id,
+          content,
+        })}`,
+      }),
+    });
+
     if (result.ok) {
       res.status(200).send(`OK ${message}`);
     } else {
