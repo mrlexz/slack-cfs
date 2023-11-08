@@ -37,6 +37,11 @@ app.post("/slack/events", async (req, res) => {
   let data = req.body;
   try {
     const message = data.text;
+    console.log(
+      "🚀 ~ file: index.js:40 ~ app.post ~ data.text:",
+      JSON.stringify(data)
+    );
+
     const { userId, content } = extractUserIdAndContent(message);
 
     const result = await client.chat.postMessage({
